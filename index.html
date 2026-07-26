@@ -723,6 +723,40 @@
         justify-content: space-between;
         margin-bottom: 12px;
       }
+      .seat-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      #seat-collapse {
+        width: 34px;
+        height: 34px;
+        display: grid;
+        place-items: center;
+        border: 2.5px solid var(--ink);
+        border-radius: 9px;
+        background: var(--paper-2);
+        box-shadow: var(--shadow-sm);
+        transition: transform .2s, box-shadow .12s;
+      }
+      #seat-collapse svg {
+        width: 17px;
+        height: 17px;
+        transition: transform .2s;
+      }
+      #seat-collapse:hover {
+        transform: translate(-1px, -1px);
+        box-shadow: 3.5px 3.5px 0 var(--ink);
+      }
+      #seatcard.collapsed > :not(header) {
+        display: none !important;
+      }
+      #seatcard.collapsed header {
+        margin-bottom: 0;
+      }
+      #seatcard.collapsed #seat-collapse svg {
+        transform: rotate(180deg);
+      }
       #seatcard .label {
         display: flex;
         align-items: center;
@@ -1732,6 +1766,10 @@
           width: 44px;
           height: 44px;
         }
+        #seat-collapse {
+          width: 44px;
+          height: 44px;
+        }
         .seat-option-btn {
           font-size: 9px;
         }
@@ -1822,6 +1860,19 @@
         }
         #p-section {
           font-size: 23px;
+        }
+        #rightcol.seat-collapsed {
+          max-height: 76px;
+          overflow: hidden;
+          padding-bottom: 8px;
+        }
+        #seatcard.collapsed {
+          padding: 11px 13px;
+          box-shadow: 5px 5px 0 var(--ink);
+        }
+        #seatcard.collapsed .label {
+          min-height: 38px;
+          transform: none;
         }
         #p-sub {
           margin-bottom: 10px;
@@ -2324,18 +2375,31 @@
               /></svg
             ><span id="p-label">SELECTED SEAT</span>
           </div>
-          <button id="fav" aria-label="Save seat to favorites">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
+          <div class="seat-header-actions">
+            <button
+              id="seat-collapse"
+              type="button"
+              aria-label="Collapse seat details"
+              aria-expanded="true"
+              aria-controls="seatcard"
             >
-              <path
-                d="M12 20.5s-7.5-4.7-9.3-9.3C1.3 7.6 3.6 4.5 6.9 4.5c2 0 3.6 1.1 4.4 2.7l.7 1.4.7-1.4c.8-1.6 2.4-2.7 4.4-2.7 3.3 0 5.6 3.1 4.2 6.7-1.8 4.6-9.3 9.3-9.3 9.3Z"
-              />
-            </svg>
-          </button>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="m6 15 6-6 6 6" />
+              </svg>
+            </button>
+            <button id="fav" aria-label="Save seat to favorites">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  d="M12 20.5s-7.5-4.7-9.3-9.3C1.3 7.6 3.6 4.5 6.9 4.5c2 0 3.6 1.1 4.4 2.7l.7 1.4.7-1.4c.8-1.6 2.4-2.7 4.4-2.7 3.3 0 5.6 3.1 4.2 6.7-1.8 4.6-9.3 9.3-9.3 9.3Z"
+                />
+              </svg>
+            </button>
+          </div>
         </header>
         <div id="p-section">Section 125</div>
         <div id="p-sub">
@@ -5134,6 +5198,23 @@
         }
       });
       ui.fav.addEventListener("click", () => ui.fav.classList.toggle("on"));
+      const seatMobileQuery = matchMedia("(max-width: 580px)");
+      function setSeatCardCollapsed(collapsed) {
+        ui.seatcard.classList.toggle("collapsed", collapsed);
+        $("rightcol").classList.toggle("seat-collapsed", collapsed);
+        $("seat-collapse").setAttribute("aria-expanded", String(!collapsed));
+        $("seat-collapse").setAttribute(
+          "aria-label",
+          collapsed ? "Show seat details" : "Collapse seat details",
+        );
+      }
+      $("seat-collapse").addEventListener("click", () => {
+        setSeatCardCollapsed(!ui.seatcard.classList.contains("collapsed"));
+      });
+      setSeatCardCollapsed(seatMobileQuery.matches);
+      seatMobileQuery.addEventListener("change", (event) => {
+        setSeatCardCollapsed(event.matches);
+      });
       $("seat-prev").addEventListener("click", () => adjacentAvailableSeat(-1));
       $("seat-next").addEventListener("click", () => adjacentAvailableSeat(1));
       $("seat-compare").addEventListener("click", () => {
