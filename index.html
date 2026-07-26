@@ -867,6 +867,68 @@
         bottom: 9px;
         right: 9px;
       }
+      .seat-options {
+        margin: -2px 0 14px;
+        padding: 11px;
+        border: 2.5px solid var(--ink);
+        border-radius: 9px;
+        background: var(--paper-2);
+      }
+      .seat-options-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+      }
+      #compare-count {
+        color: var(--blue);
+        font-size: 9px;
+      }
+      .seat-switcher,
+      .ticket-types {
+        display: grid;
+        gap: 6px;
+      }
+      .seat-switcher {
+        grid-template-columns: 1fr 1.25fr 1fr;
+        margin-bottom: 10px;
+      }
+      .ticket-types {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .seat-option-btn {
+        min-height: 32px;
+        padding: 5px 7px;
+        border: 2px solid var(--ink);
+        border-radius: 7px;
+        background: var(--paper);
+        font-size: 9.5px;
+        font-weight: 900;
+        line-height: 1.1;
+        text-transform: uppercase;
+        transition: background .15s, transform .12s;
+      }
+      .seat-option-btn:hover {
+        transform: translateY(-1px);
+        background: #fff8d7;
+      }
+      .seat-option-btn.active {
+        background: var(--yellow);
+        box-shadow: 2px 2px 0 var(--ink);
+      }
+      .seat-option-btn.saved {
+        background: var(--green);
+      }
+      .seat-option-btn small {
+        display: block;
+        margin-top: 3px;
+        color: var(--dim);
+        font-size: 8px;
+      }
       .benefits {
         display: flex;
         flex-direction: column;
@@ -2034,6 +2096,23 @@
           <div class="ph" id="p-ph">Rendering seat view…</div>
           <div class="pill tl" id="p-score">★ view</div>
           <div class="pill br">360°</div>
+        </div>
+        <div class="seat-options" aria-label="Seat preview options">
+          <div class="seat-options-title">
+            <span>Explore options</span>
+            <span id="compare-count">0 saved to compare</span>
+          </div>
+          <div class="seat-switcher">
+            <button class="seat-option-btn" id="seat-prev" type="button">← Previous</button>
+            <button class="seat-option-btn" id="seat-compare" type="button">＋ Compare</button>
+            <button class="seat-option-btn" id="seat-next" type="button">Next →</button>
+          </div>
+          <div class="seat-options-title"><span>Ticket type</span><span id="ticket-extra">Included</span></div>
+          <div class="ticket-types" role="group" aria-label="Ticket type">
+            <button class="seat-option-btn active" data-ticket-type="Standard" data-surcharge="0" type="button">Standard<small>Included</small></button>
+            <button class="seat-option-btn" data-ticket-type="Flex" data-surcharge="18" type="button">Flex<small>+€18</small></button>
+            <button class="seat-option-btn" data-ticket-type="Premium" data-surcharge="64" type="button">Premium<small>+€64</small></button>
+          </div>
         </div>
         <div class="benefits" id="benefits">
           <div class="benefit">
@@ -4284,6 +4363,19 @@
         ["Lounge access", "Halftime table service", "Padded club seat"],
         ["Full pitch view", "Budget friendly", "Fast concourse access"],
       ];
+      let ticketChoice = { name: "Standard", surcharge: 0 };
+      const comparisonSeats = [];
+      function selectedSeatPrice() {
+        return (currentInfo ? currentInfo.price : 0) + ticketChoice.surcharge;
+      }
+      function updateTicketPrice() {
+        if (!currentInfo) return;
+        ui.pPrice.innerHTML =
+          "€" + selectedSeatPrice() + ' <span class="unit">/seat</span>';
+        $("ticket-extra").textContent = ticketChoice.surcharge
+          ? "+" + "€" + ticketChoice.surcharge
+          : "Included";
+      }
       function updatePanel(info, state) {
         ui.pLabel.textContent =
           state === "confirmed"
@@ -4296,8 +4388,7 @@
         ui.pBlock.textContent = "Block " + info.label;
         ui.pRow.textContent = info.row;
         ui.pSeat.textContent = info.seat;
-        ui.pPrice.innerHTML =
-          "€" + info.price + ' <span class="unit">/seat</span>';
+        updateTicketPrice();
         ui.pScore.textContent = "★ " + info.score + "% view";
         const b = TIER_BENEFITS[info.sec.tier];
         ui.benefits.forEach((el, k) => (el.textContent = b[k]));
@@ -4414,6 +4505,9 @@
       function flyToSeat(i) {
         const info = seatInfo(i);
         currentInfo = info;
+        const compared = comparisonSeats.some((seat) => seat.i === info.i);
+        $("seat-compare").classList.toggle("saved", compared);
+        $("seat-compare").textContent = compared ? "Saved ✓" : "＋ Compare";
         confirmed = false;
         setHover(-1);
         hideTip();
@@ -4474,6 +4568,20 @@
         });
         ensureAudio();
         setCrowd(0.02);
+      }
+
+      function adjacentAvailableSeat(direction) {
+        if (!currentInfo) return;
+        const i = currentInfo.i;
+        const start = meta.rowStart[i];
+        const end = start + meta.rowCount[i] - 1;
+        for (let next = i + direction; next >= start && next <= end; next += direction) {
+          if (meta.avail[next]) {
+            flyToSeat(next);
+            return;
+          }
+        }
+        toast("No more available seats in this row");
       }
       function enterSeatMode(info) {
         mode = "seat";
@@ -4724,8 +4832,8 @@
             currentInfo.row +
             " · Seat " +
             currentInfo.seat,
-          price: currentInfo.price,
-          type: "Ticket",
+          price: selectedSeatPrice(),
+          type: ticketChoice.name + " ticket",
         });
         cheer();
         toast(
@@ -4759,6 +4867,51 @@
         }
       });
       ui.fav.addEventListener("click", () => ui.fav.classList.toggle("on"));
+      $("seat-prev").addEventListener("click", () => adjacentAvailableSeat(-1));
+      $("seat-next").addEventListener("click", () => adjacentAvailableSeat(1));
+      $("seat-compare").addEventListener("click", () => {
+        if (!currentInfo) return;
+        const exists = comparisonSeats.some((seat) => seat.i === currentInfo.i);
+        if (!exists) {
+          comparisonSeats.push({ ...currentInfo });
+          $("seat-compare").classList.add("saved");
+          $("seat-compare").textContent = "Saved ✓";
+          toast(
+            "Section " +
+              currentInfo.label +
+              " · Seat " +
+              currentInfo.seat +
+              " saved to compare",
+          );
+        } else {
+          const index = comparisonSeats.findIndex(
+            (seat) => seat.i === currentInfo.i,
+          );
+          comparisonSeats.splice(index, 1);
+          $("seat-compare").classList.remove("saved");
+          $("seat-compare").textContent = "＋ Compare";
+        }
+        $("compare-count").textContent =
+          comparisonSeats.length +
+          (comparisonSeats.length === 1
+            ? " saved to compare"
+            : " saved to compare");
+      });
+      document.querySelectorAll("[data-ticket-type]").forEach((button) => {
+        button.addEventListener("click", () => {
+          ticketChoice = {
+            name: button.dataset.ticketType,
+            surcharge: Number(button.dataset.surcharge),
+          };
+          document.querySelectorAll("[data-ticket-type]").forEach((option) => {
+            option.classList.toggle("active", option === button);
+          });
+          confirmed = false;
+          ui.checkout.classList.remove("done");
+          ui.ckLabel.textContent = "Grab " + ticketChoice.name.toLowerCase();
+          updateTicketPrice();
+        });
+      });
       function goHome() {
         if (mode === "seat") {
           exitSeatMode();
