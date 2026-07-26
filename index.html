@@ -1640,6 +1640,273 @@
         .squad-row { grid-template-columns: repeat(2, 1fr); }
         .section-bar { align-items: start; flex-direction: column; }
       }
+
+      /* ---------- mobile UX hardening ---------- */
+      @media (hover: none), (pointer: coarse) {
+        button,
+        a {
+          -webkit-tap-highlight-color: transparent;
+        }
+        button {
+          touch-action: manipulation;
+        }
+        #c {
+          touch-action: none;
+        }
+        .action-btn,
+        .filter-btn,
+        .seat-option-btn,
+        .mobile-view-tabs button {
+          min-height: 44px;
+        }
+      }
+      @media (max-width: 900px) {
+        .action-btn,
+        .filter-btn,
+        .seat-option-btn,
+        .mobile-view-tabs button {
+          min-height: 46px;
+        }
+        html,
+        body {
+          width: 100%;
+          min-height: 100%;
+          min-height: 100svh;
+          overscroll-behavior: none;
+        }
+        nav {
+          top: env(safe-area-inset-top);
+          height: 76px;
+          padding: 0 max(14px, env(safe-area-inset-left));
+        }
+        .brand {
+          min-height: 46px;
+        }
+        .support-btn {
+          min-width: 46px;
+          min-height: 46px;
+        }
+        #app-view {
+          padding:
+            calc(94px + env(safe-area-inset-top))
+            max(16px, env(safe-area-inset-right))
+            calc(102px + env(safe-area-inset-bottom))
+            max(16px, env(safe-area-inset-left));
+          scroll-padding-bottom: calc(96px + env(safe-area-inset-bottom));
+          overscroll-behavior-y: contain;
+          -webkit-overflow-scrolling: touch;
+        }
+        .mobile-view-tabs {
+          left: max(12px, env(safe-area-inset-left));
+          right: max(12px, env(safe-area-inset-right));
+          bottom: max(12px, env(safe-area-inset-bottom));
+          min-height: 58px;
+          align-items: center;
+        }
+        .mobile-view-tabs button {
+          flex: 1;
+          padding: 8px 5px;
+        }
+        body[data-view="stadium"] #dock {
+          bottom: calc(84px + env(safe-area-inset-bottom));
+          min-height: 54px;
+        }
+        #rightcol {
+          bottom: calc(74px + env(safe-area-inset-bottom));
+          max-height: min(58svh, 590px);
+          padding: 0 max(14px, env(safe-area-inset-right)) 16px
+            max(14px, env(safe-area-inset-left));
+          scroll-snap-type: y proximity;
+          -webkit-overflow-scrolling: touch;
+        }
+        #rightcol .card {
+          scroll-snap-align: end;
+        }
+        #seatcard {
+          padding: 15px 16px 17px;
+        }
+        #seatcard header {
+          margin-bottom: 9px;
+        }
+        #fav {
+          width: 44px;
+          height: 44px;
+        }
+        .seat-option-btn {
+          font-size: 9px;
+        }
+        #toast {
+          top: calc(82px + env(safe-area-inset-top));
+          width: calc(100% - 32px);
+          padding: 11px 14px;
+          text-align: center;
+        }
+        .page-hero {
+          gap: 17px;
+          margin-bottom: 20px;
+        }
+        .page-hero p {
+          font-size: 15px;
+        }
+        .hero-stat {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+        .hero-stat strong {
+          font-size: 27px;
+        }
+        .feature-art {
+          min-height: 160px;
+        }
+        .feature-body {
+          padding: 17px;
+        }
+        .feature-foot {
+          align-items: stretch;
+          flex-direction: column;
+        }
+        .feature-foot .action-btn {
+          width: 100%;
+        }
+        .filters {
+          width: 100%;
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+        }
+        .filter-btn {
+          padding: 7px 5px;
+        }
+        .ticket-row {
+          grid-template-columns: 68px minmax(0, 1fr) auto;
+          gap: 11px;
+          padding: 12px;
+        }
+        .ticket-row .action-btn {
+          width: 100%;
+          grid-column: 1 / -1;
+        }
+        .ticket-match h3 {
+          font-size: 16px;
+        }
+        .ticket-cost strong {
+          font-size: 18px;
+        }
+        .summary-card {
+          padding: 17px;
+        }
+        .team-actions .action-btn {
+          padding: 0 9px;
+        }
+      }
+      @media (max-width: 580px) {
+        body[data-view="stadium"] #dock {
+          display: none;
+        }
+        .brand {
+          font-size: 15px;
+          padding: 8px 11px 8px 9px;
+        }
+        .brand svg {
+          width: 23px;
+          height: 23px;
+        }
+        .page-kicker {
+          max-width: 100%;
+          white-space: normal;
+        }
+        .page-hero h1 {
+          font-size: clamp(34px, 10.8vw, 43px);
+          line-height: .96;
+        }
+        #p-section {
+          font-size: 23px;
+        }
+        #p-sub {
+          margin-bottom: 10px;
+        }
+        .seat-grid {
+          margin-bottom: 10px;
+          padding: 9px 10px;
+        }
+        .seat-grid .cell .v {
+          font-size: 18px;
+        }
+        .preview {
+          margin-bottom: 11px;
+          aspect-ratio: 16 / 8.6;
+        }
+        .seat-options {
+          margin-bottom: 11px;
+          padding: 9px;
+        }
+        .benefits {
+          gap: 8px;
+          margin-bottom: 13px;
+        }
+        .benefit {
+          font-size: 12.5px;
+        }
+        #checkout {
+          min-height: 54px;
+        }
+        .secure {
+          margin-top: 10px;
+          font-size: 9.5px;
+        }
+        .team-card {
+          grid-template-columns: 82px minmax(0, 1fr);
+        }
+        .team-info {
+          min-width: 0;
+          padding: 14px;
+        }
+        .team-info h2 {
+          font-size: 21px;
+          overflow-wrap: anywhere;
+        }
+        .team-meta {
+          flex-wrap: wrap;
+          gap: 5px 13px;
+        }
+        .team-actions {
+          flex-direction: column;
+        }
+        .squad-row {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (max-width: 900px) and (orientation: landscape) and (max-height: 540px) {
+        nav {
+          height: 64px;
+        }
+        .brand {
+          min-height: 42px;
+        }
+        body[data-view="stadium"] #rightcol {
+          top: calc(72px + env(safe-area-inset-top));
+          right: max(10px, env(safe-area-inset-right));
+          bottom: calc(68px + env(safe-area-inset-bottom));
+          left: auto;
+          width: min(340px, 43vw);
+          max-height: none;
+          padding: 0 5px 10px;
+        }
+        body[data-view="stadium"] #dock {
+          left: 24%;
+          bottom: calc(76px + env(safe-area-inset-bottom));
+        }
+        #app-view {
+          padding-top: calc(76px + env(safe-area-inset-top));
+        }
+        .page-hero h1 {
+          font-size: 36px;
+        }
+        .mobile-view-tabs {
+          min-height: 52px;
+        }
+      }
     </style>
   </head>
   <body>
