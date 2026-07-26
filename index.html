@@ -1866,6 +1866,14 @@
           overflow: hidden;
           padding-bottom: 8px;
         }
+        #rightcol:not(.seat-collapsed) {
+          top: calc(82px + env(safe-area-inset-top));
+          bottom: calc(74px + env(safe-area-inset-bottom));
+          max-height: none;
+          overflow-y: auto;
+          padding-top: 0;
+          scroll-padding-top: 0;
+        }
         #seatcard.collapsed {
           padding: 11px 13px;
           box-shadow: 5px 5px 0 var(--ink);
@@ -1873,6 +1881,16 @@
         #seatcard.collapsed .label {
           min-height: 38px;
           transform: none;
+        }
+        #seatcard:not(.collapsed) header {
+          position: sticky;
+          top: 0;
+          z-index: 5;
+          margin: -15px -16px 12px;
+          padding: 14px 16px 11px;
+          border-bottom: 2.5px solid var(--ink);
+          border-radius: 10px 10px 0 0;
+          background: var(--paper);
         }
         #p-sub {
           margin-bottom: 10px;
@@ -5207,6 +5225,18 @@
           "aria-label",
           collapsed ? "Show seat details" : "Collapse seat details",
         );
+        if (!collapsed && seatMobileQuery.matches) {
+          const panel = $("rightcol");
+          ui.toast.classList.remove("show");
+          panel.scrollTop = 0;
+          requestAnimationFrame(() => {
+            panel.scrollTop = 0;
+            requestAnimationFrame(() => {
+              panel.scrollTop = 0;
+              $("seat-collapse").focus({ preventScroll: true });
+            });
+          });
+        }
       }
       $("seat-collapse").addEventListener("click", () => {
         setSeatCardCollapsed(!ui.seatcard.classList.contains("collapsed"));
